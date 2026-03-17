@@ -1,0 +1,99 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // Collection: users
+    // Fields: uid, email, displayName, role, subscriptionExpiresAt, status, createdAt
+    //
+    // Collection: categories
+    // Fields: name, type
+    //
+    // Collection: channels
+    // Fields: name, logoUrl, streamUrl, categoryId, order
+    //
+    // Collection: movies
+    // Fields: title, description, posterUrl, backdropUrl, streamUrl, categoryId, releaseYear, rating
+    //
+    // Collection: series
+    // Fields: title, description, posterUrl, backdropUrl, categoryId, releaseYear
+    //
+    // Collection: episodes
+    // Fields: seriesId, title, streamUrl, season, episodeNumber, description
+    //
+    // Collection: favorites
+    // Fields: userId, contentId, contentType, createdAt
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      let userPath = /databases/$(database)/documents/users/$(request.auth.uid);
+      return isAuthenticated() && 
+        ((exists(userPath) && get(userPath).data.role == 'admin') ||
+         (request.auth.token.email == "elieltonsilvak2@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isUserActive() {
+      let userPath = /databases/$(database)/documents/users/$(request.auth.uid);
+      return !exists(userPath) || get(userPath).data.status != 'blocked';
+    }
+
+    // Domain Validators
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'role']) &&
+             data.uid is string &&
+             data.email is string &&
+             data.role in ['admin', 'user'];
+    }
+
+    // Users
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      allow create: if isAuthenticated() && isOwner(userId) && isValidUser(request.resource.data) && request.resource.data.role == 'user';
+      allow update: if isAuthenticated() && (
+        (isOwner(userId) && request.resource.data.role == resource.data.role && request.resource.data.status == resource.data.status) ||
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Categories, Channels, Movies, Series, Episodes
+    match /categories/{id} {
+      allow read: if isAuthenticated() && isUserActive();
+      allow write: if isAdmin();
+    }
+    match /channels/{id} {
+      allow read: if isAuthenticated() && isUserActive();
+      allow write: if isAdmin();
+    }
+    match /movies/{id} {
+      allow read: if isAuthenticated() && isUserActive();
+      allow write: if isAdmin();
+    }
+    match /series/{id} {
+      allow read: if isAuthenticated() && isUserActive();
+      allow write: if isAdmin();
+      
+      match /episodes/{episodeId} {
+        allow read: if isAuthenticated() && isUserActive();
+        allow write: if isAdmin();
+      }
+    }
+
+    // Favorites
+    match /favorites/{id} {
+      allow read: if isAuthenticated() && isOwner(resource.data.userId);
+      allow create: if isAuthenticated() && isOwner(request.resource.data.userId) && isUserActive();
+      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
+    }
+  }
+}

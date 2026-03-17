@@ -1,0 +1,107 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and subscription data",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "user"] },
+        "subscriptionExpiresAt": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["active", "blocked"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Categories for content",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "type": "string", "enum": ["live", "movie", "series"] }
+      },
+      "required": ["name", "type"]
+    },
+    "Channel": {
+      "title": "Channel",
+      "description": "Live TV Channel",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "logoUrl": { "type": "string", "format": "uri" },
+        "streamUrl": { "type": "string", "format": "uri" },
+        "categoryId": { "type": "string" },
+        "order": { "type": "integer" }
+      },
+      "required": ["name", "streamUrl", "categoryId"]
+    },
+    "Movie": {
+      "title": "Movie",
+      "description": "Movie content",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "posterUrl": { "type": "string", "format": "uri" },
+        "backdropUrl": { "type": "string", "format": "uri" },
+        "streamUrl": { "type": "string", "format": "uri" },
+        "categoryId": { "type": "string" },
+        "releaseYear": { "type": "integer" },
+        "rating": { "type": "number" }
+      },
+      "required": ["title", "streamUrl", "categoryId"]
+    },
+    "Series": {
+      "title": "Series",
+      "description": "TV Series content",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "posterUrl": { "type": "string", "format": "uri" },
+        "backdropUrl": { "type": "string", "format": "uri" },
+        "categoryId": { "type": "string" },
+        "releaseYear": { "type": "integer" }
+      },
+      "required": ["title", "categoryId"]
+    },
+    "Episode": {
+      "title": "Episode",
+      "description": "Episode of a series",
+      "type": "object",
+      "properties": {
+        "seriesId": { "type": "string" },
+        "title": { "type": "string" },
+        "streamUrl": { "type": "string", "format": "uri" },
+        "season": { "type": "integer" },
+        "episodeNumber": { "type": "integer" },
+        "description": { "type": "string" }
+      },
+      "required": ["seriesId", "title", "streamUrl", "season", "episodeNumber"]
+    },
+    "Favorite": {
+      "title": "Favorite",
+      "description": "User favorite content",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "contentId": { "type": "string" },
+        "contentType": { "type": "string", "enum": ["channel", "movie", "series"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "contentId", "contentType"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": { "schema": "User", "description": "User profiles" },
+    "/categories/{categoryId}": { "schema": "Category", "description": "Content categories" },
+    "/channels/{channelId}": { "schema": "Channel", "description": "Live TV channels" },
+    "/movies/{movieId}": { "schema": "Movie", "description": "Movies" },
+    "/series/{seriesId}": { "schema": "Series", "description": "TV Series" },
+    "/series/{seriesId}/episodes/{episodeId}": { "schema": "Episode", "description": "Episodes for a series" },
+    "/favorites/{favoriteId}": { "schema": "Favorite", "description": "User favorites" }
+  }
+}

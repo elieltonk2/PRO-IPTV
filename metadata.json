@@ -1,0 +1,9 @@
+{
+  "name": "Pro IPTV Stream",
+  "description": "A professional IPTV streaming platform with admin panel, user management, and Netflix-style interface for live TV, movies, and series.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}

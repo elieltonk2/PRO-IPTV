@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-brand-red: #8B0000;
+  --color-brand-dark: #1A0505;
+  --color-brand-accent: #FF3131;
+}
+
+@layer base {
+  body {
+    @apply bg-brand-dark text-white antialiased selection:bg-brand-red/30;
+    background-image: radial-gradient(circle at top right, rgba(139, 0, 0, 0.2), transparent),
+                      radial-gradient(circle at bottom left, rgba(139, 0, 0, 0.15), transparent);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+}
+
+.glass-panel {
+  @apply bg-white/5 backdrop-blur-md border border-white/10;
+}
+
+.nav-tab-active {
+  @apply text-white font-bold scale-110;
+  text-shadow: 0 0 15px rgba(255, 49, 49, 0.6);
+}
+
+.channel-item-active {
+  @apply bg-brand-red/30 border-l-4 border-brand-accent;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-full hover:bg-white/20;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.glow-text {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
